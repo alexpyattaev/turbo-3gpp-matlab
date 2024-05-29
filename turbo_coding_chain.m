@@ -34,6 +34,9 @@ classdef turbo_coding_chain < matlab.System
         %   used for rate matching, when I_LBRM is non-zero. N_IR is
         %   ignored when I_LBRM is zero.
         N_IR = inf; % Default value
+
+        % Code block length. 6144 for LTE, 2048 for DECT 2020
+        Z = 6144;
     end
     
     % Tunable properties can be changed anytime, even after the step
@@ -169,6 +172,7 @@ classdef turbo_coding_chain < matlab.System
             obj.N_L = N_L;
         end
         
+        
         % Valid values of Q_m are defined in Section 5.1.4.1.2 of TS36.212.
         function set.Q_m(obj, Q_m)
             if isempty(find([1,2,4,6,8,10] == Q_m, 1))
@@ -210,8 +214,7 @@ classdef turbo_coding_chain < matlab.System
         
         % The calculation of B_prime is specified in Section 5.1.2 of TS36.212.
         function B_prime = get.B_prime(obj)
-            Z = 6144;           
-            if obj.B <= Z
+            if obj.B <= obj.Z
                 B_prime = obj.B;
             else
                 B_prime = obj.B+obj.C*obj.L_CB;
@@ -219,7 +222,7 @@ classdef turbo_coding_chain < matlab.System
         end
         
         function K_r = get.K_r(obj)
-            K_r = get_3gpp_code_block_segment_lengths(obj.B);
+            K_r = get_3gpp_code_block_segment_lengths(obj.B, obj.Z);
         end
 
         % The calculation of F is specified in Section 5.1.2 of TS36.212.
@@ -260,7 +263,7 @@ classdef turbo_coding_chain < matlab.System
             obj.CRC_generator_matrix_TB = get_crc_generator_matrix(sum(obj.K_r), obj.CRC_polynomial_TB);
             
             if obj.C > 1
-                obj.CRC_generator_matrix_CB = get_crc_generator_matrix(6144, obj.CRC_polynomial_CB);
+                obj.CRC_generator_matrix_CB = get_crc_generator_matrix(obj.Z, obj.CRC_polynomial_CB);
             end
             
             obj.internal_interleaver_patterns = cell(1,obj.C);

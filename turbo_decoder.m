@@ -44,6 +44,23 @@ function [c, iterations_performed] = turbo_decoder(d_a, pi, max_iterations, G_ma
 % more details.
 
 
+
+if true
+    trellis = poly2trellis(4, [13 15], 13);
+    hTurboDec = comm.TurboDecoder('TrellisStructure', trellis, ...
+        'InterleaverIndices',pi' + 1, ...
+        'NumIterations', max_iterations, 'Algorithm','Max*');
+    lte_compat_bits = reshape(d_a', 1, [])';
+    [ ~,b] = size(d_a);
+    %recovered_bits = reshape(d_a,b*3, 1);    
+    recovered_bits = reshape(reshape(lte_compat_bits,b,3)', 1, [])';
+    %recovered_bits = recovered_bits / max(abs(recovered_bits));
+    %c0 = double(lteTurboDecode(d,max_iterations)');
+    c0 = step(hTurboDec, -recovered_bits);
+    iterations_performed = max_iterations;
+    c=c0';
+    return
+end
 K = size(d_a,2)-4;
 if size(d_a,1) ~= 3
     error('d_a should have 3 rows');

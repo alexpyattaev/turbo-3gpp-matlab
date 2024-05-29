@@ -21,6 +21,23 @@ function d = turbo_encoder(c, pi)
 % FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 % more details.
 
+
+trellis = poly2trellis(4,[13 15],13);
+turboenc = comm.TurboEncoder('TrellisStructure', trellis, ...
+                                   'InterleaverIndices', pi' + 1);
+msg = turboenc(c');
+msg = reshape(msg,3,length(msg)/3);
+
+d = double(msg);
+
+%lte_compat_bits = reshape(msg', 1, [])';
+%d0 = lteTurboEncode(c);
+%d1 = reshape(d0, length(d0)/3, 3)';
+%d = double(d1);
+%[ ~,b] = size(d);
+%d3 = reshape(d',b*3, 1);
+%c0 = double(lteTurboDecode(d3,4)');
+return;
 K = length(c);
 
 if length(pi) ~= K

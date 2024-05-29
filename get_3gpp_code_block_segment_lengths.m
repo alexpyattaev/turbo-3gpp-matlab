@@ -1,4 +1,4 @@
-function K_r = get_3gpp_code_block_segment_lengths(B)
+function K_r = get_3gpp_code_block_segment_lengths(B, Z)
 % GET_3GPP_CODE_BLOCK_SEGMENT_LENGTHS determines how to segment a transport
 % block into code blocks, according to Section 5.1.2 of TS36.212.
 %   K_r = GET_3GPP_CODE_BLOCK_SEGMENT_LENGTHS(B) determines the code block
@@ -23,9 +23,15 @@ if B <= 0
     error('Unsupported block length');
 end
 
-supported_values_of_K = [40:8:511,512:16:1023,1024:32:2047,2048:64:6144];
+if Z == 2048
+    supported_values_of_K = [40:8:511,512:16:1023,1024:32:2047,2048];
+elseif Z == 6144
+    supported_values_of_K = [40:8:511,512:16:1023,1024:32:2047,2048:64:6144];
+else
+    error('Unsupported Z, only 2048 and 6144 are allowed');
+end;
 
-Z = 6144;
+
 
 if B <= Z
 %    L = 0;
